@@ -14,7 +14,7 @@ import { useGetShopByCity } from "./hooks/useGetShopByCity.jsx";
 import { useGetItemsByCity } from "./hooks/useGetItemsByCity.jsx";
 import { useEffect, useState } from "react";
 
-export const serverUrl = "http://localhost:5000";
+export const serverUrl = import.meta.env.VITE_API_URL;
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);

@@ -37,7 +37,7 @@ export default function Nav() {
 
   return (
     <div className="w-full h-20 flex items-center justify-between md:justify-center gap-7.5 px-5 fixed top-0 z-9999 bg-[#fff9f6] overflow-visible">
-      {showSearch && userData.user.role == "user" && (
+      {showSearch && userData.role == "user" && (
         <div className="h-[70px] bg-white shadow-xl rounded-lg flex fixed top-[80px] w-[90%] left-[5%] items-center gap-[20px] md:hidden">
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-2.5 border-r-[2px] border-gray-400">
             <FaLocationDot size={25} className="text-[#ff4d2d]" />
@@ -55,7 +55,7 @@ export default function Nav() {
       )}
 
       <h1 className="text-3xl font-bold mb-2 text-[#ff4d2d]">Vingo</h1>
-      {userData.user?.role == "user" && (
+      {userData?.role == "user" && (
         <div className="md:w-[60%] lg:w-[40%] h-[70px] bg-white shadow-xl rounded-lg hidden md:flex items-center gap-[20px]">
           <div className="flex items-center w-[30%] overflow-hidden gap-[10px] px-2.5 border-r-[2px] border-gray-400">
             <FaLocationDot size={25} className="text-[#ff4d2d]" />

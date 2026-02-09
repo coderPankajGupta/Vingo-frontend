@@ -13,6 +13,7 @@ import EditItem from "./pages/EditItem.jsx";
 import { useGetShopByCity } from "./hooks/useGetShopByCity.jsx";
 import { useGetItemsByCity } from "./hooks/useGetItemsByCity.jsx";
 import { useEffect, useState } from "react";
+import CartPage from "./pages/CartPage.jsx";
 
 export const serverUrl = import.meta.env.VITE_API_URL;
 
@@ -93,6 +94,10 @@ export default function App() {
       <Route
         path="/edit-item/:itemId"
         element={userData ? <EditItem /> : <Navigate to={"/signin"} />}
+      />
+      <Route
+        path="/cart"
+        element={userData ? <CartPage /> : <Navigate to={"/signin"} />}
       />
     </Routes>
   );

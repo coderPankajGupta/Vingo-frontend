@@ -15,7 +15,7 @@ import { clearOwnerData } from "../redux/ownerSlice";
 
 export default function Nav() {
   const { userData } = useSelector((state) => state.user);
-  const { currentCity } = useSelector((state) => state.user);
+  const { currentCity, cartItems } = useSelector((state) => state.user);
   const { myShopData } = useSelector((state) => state.owner);
   const [showInfo, setShowInfo] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
@@ -28,8 +28,8 @@ export default function Nav() {
         withCredentials: true,
       });
       dispatch(clearUserData());
-      dispatch(clearOwnerData())
-      navgate("/signin")
+      dispatch(clearOwnerData());
+      navgate("/signin");
     } catch (error) {
       console.log(error?.response?.data?.message);
     }
@@ -124,10 +124,13 @@ export default function Nav() {
           </>
         ) : (
           <>
-            <div className="relative cursor-pointer">
+            <div
+              className="relative cursor-pointer"
+              onClick={() => navgate("/cart")}
+            >
               <LuShoppingCart size={25} className="text-[#ff4d2d]" />
               <span className="absolute text-[#ff4d2d] -right-2.25 top-[-12px] font-medium">
-                0
+                {cartItems.length}
               </span>
             </div>
 
@@ -146,9 +149,7 @@ export default function Nav() {
 
         {showInfo && (
           <div className="fixed top-[80px] right-[10px] md:right-[10%] lg:right-[25%] w-[180px] bg-white shadow-2xl rounded-xl p-[20px] flex flex-col gap-[10px] z-9999">
-            <div className="text-[17px] font-semibold">
-              {userData.fullName}
-            </div>
+            <div className="text-[17px] font-semibold">{userData.fullName}</div>
             {userData.role == "user" && (
               <div className="md:hidden cursor-pointer font-semibold text-[#ff4d2d]">
                 My Orders

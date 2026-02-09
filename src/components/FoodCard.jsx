@@ -2,8 +2,8 @@ import { FaLeaf } from "react-icons/fa";
 import { GiChickenLeg } from "react-icons/gi";
 import { FaStar } from "react-icons/fa";
 import { FaRegStar } from "react-icons/fa";
-import { FaMinus } from "react-icons/fa";
 import { useState } from "react";
+import { FaMinus } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa";
 import { FaCartShopping } from "react-icons/fa6";
 import { useDispatch, useSelector } from "react-redux";
@@ -86,17 +86,19 @@ export default function FoodCard({ data }) {
           <button
             className={`${cartItems.some((i) => i.id == data._id) ? "bg-gray-800" : "bg-[#ff4d2d]"} text-white px-3 py-2 transition-colors cursor-pointer`}
             onClick={() =>
-              dispatch(
-                addToCart({
-                  id: data._id,
-                  name: data.name,
-                  price: data.price,
-                  image: data.image,
-                  shop: data.shop,
-                  quantity: quantity,
-                  foodType: data.foodType,
-                }),
-              )
+              quantity > 0
+                ? dispatch(
+                    addToCart({
+                      id: data._id,
+                      name: data.name,
+                      price: data.price,
+                      image: data.image,
+                      shop: data.shop,
+                      quantity: quantity,
+                      foodType: data.foodType,
+                    }),
+                  )
+                : null
             }
           >
             <FaCartShopping size={16} />

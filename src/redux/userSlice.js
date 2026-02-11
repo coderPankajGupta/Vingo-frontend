@@ -10,6 +10,7 @@ const userSlice = createSlice({
     shopsInMyCity: null,
     itemsInMyCity: null,
     cartItems: [],
+    totalAmount: 0,
   },
   reducers: {
     setUserData: (state, action) => {
@@ -31,13 +32,17 @@ const userSlice = createSlice({
       state.itemsInMyCity = action.payload;
     },
     addToCart: (state, action) => {
-      const cardItem = action.payload;
-      const existing = state.cartItems.find((i) => i.id == cardItem.id);
+      const cartItem = action.payload;
+      const existing = state.cartItems.find((i) => i.id == cartItem.id);
       if (existing) {
-        existing.quantity += cardItem.quantity;
+        existing.quantity += cartItem.quantity;
       } else {
-        state.cartItems.push(cardItem);
+        state.cartItems.push(cartItem);
       }
+      state.totalAmount = state.cartItems.reduce(
+        (sum, i) => sum + i.price * i.quantity,
+        0,
+      );
     },
     updateQuantity: (state, action) => {
       const { id, quantity } = action.payload;
@@ -45,9 +50,17 @@ const userSlice = createSlice({
       if (item) {
         item.quantity = quantity;
       }
+      state.totalAmount = state.cartItems.reduce(
+        (sum, i) => sum + i.price * i.quantity,
+        0,
+      );
     },
     removeCartItem: (state, action) => {
       state.cartItems = state.cartItems.filter((i) => i.id !== action.payload);
+      state.totalAmount = state.cartItems.reduce(
+        (sum, i) => sum + i.price * i.quantity,
+        0,
+      );
     },
     clearUserData: (state) => {
       state.userData = null;

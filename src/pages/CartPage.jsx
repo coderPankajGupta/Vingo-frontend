@@ -5,7 +5,7 @@ import CartItemCard from "../components/CartItemCard";
 
 export default function CartPage() {
   const navigate = useNavigate();
-  const { cartItems } = useSelector((state) => state.user);
+  const { cartItems, totalAmount } = useSelector((state) => state.user);
   return (
     <div className="min-h-screen bg-[#fff9f6] flex justify-center p-6">
       <div className="w-full max-w-[800px]">
@@ -20,11 +20,27 @@ export default function CartPage() {
             Your Cart is Empty
           </p>
         ) : (
-          <div>
-            {cartItems?.map((item, index) => {
-              return <CartItemCard data={item} key={index} />;
-            })}
-          </div>
+          <>
+            <div>
+              {cartItems?.map((item, index) => {
+                return <CartItemCard data={item} key={index} />;
+              })}
+            </div>
+            <div className="mt-6 bg-white p-4 rounded-xl shadow flex justify-between items-center border">
+              <h1 className="text-lg font-semibold">Total Amount</h1>
+              <span className="text-xl font-bold text-[#ff4d2d]">
+                ₹{totalAmount}
+              </span>
+            </div>
+            <div
+              className="mt-4 flex justify-end"
+              onClick={() => navigate("/checkOut")}
+            >
+              <button className="bg-[#ff4d2d] text-white px-6 py-3 rounded-lg text-lg font-medium hover:bg-[#e64526]transition cursor-pointer">
+                Proceed to CheckOut
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>

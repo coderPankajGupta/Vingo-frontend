@@ -14,6 +14,7 @@ import { useGetShopByCity } from "./hooks/useGetShopByCity.jsx";
 import { useGetItemsByCity } from "./hooks/useGetItemsByCity.jsx";
 import { useEffect, useState } from "react";
 import CartPage from "./pages/CartPage.jsx";
+import CheckOut from "./pages/CheckOut.jsx";
 
 export const serverUrl = import.meta.env.VITE_API_URL;
 
@@ -98,6 +99,10 @@ export default function App() {
       <Route
         path="/cart"
         element={userData ? <CartPage /> : <Navigate to={"/signin"} />}
+      />
+      <Route
+        path="/checkOut"
+        element={userData ? <CheckOut /> : <Navigate to={"/signin"} />}
       />
     </Routes>
   );

@@ -52,7 +52,7 @@ export default function UserOrderCart({ data }) {
           <div className="flex justify-between items-center border-t pt-2">
             <p className="font-semibold">Subtotal: {shopOrder.subtotal}</p>
             <p className="text-sm font-medium text-blue-600">
-              {shopOrder.status}
+              {shopOrder?.status}
             </p>
           </div>
         </div>

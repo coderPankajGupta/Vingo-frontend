@@ -14,7 +14,6 @@ export default function useGetMyOrders() {
           withCredentials: true,
         });
         dispatch(setMyOrders(result.data));
-        console.log(result.data)
       } catch (error) {
         console.log(error);
       }

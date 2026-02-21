@@ -130,15 +130,17 @@ export default function Nav() {
           </>
         ) : (
           <>
-            <div
-              className="relative cursor-pointer"
-              onClick={() => navigate("/cart")}
-            >
-              <LuShoppingCart size={25} className="text-[#ff4d2d]" />
-              <span className="absolute text-[#ff4d2d] -right-2.25 top-[-12px] font-medium">
-                {cartItems.length}
-              </span>
-            </div>
+            {userData.role == "user" && (
+              <div
+                className="relative cursor-pointer"
+                onClick={() => navigate("/cart")}
+              >
+                <LuShoppingCart size={25} className="text-[#ff4d2d]" />
+                <span className="absolute text-[#ff4d2d] -right-2.25 top-[-12px] font-medium">
+                  {cartItems.length}
+                </span>
+              </div>
+            )}
 
             <button
               className="hidden md:block px-3 py-1 rounded-lg bg-[#ff4d2d]/10 text-[#ff4d2d] text-sm font-medium"
@@ -157,7 +159,7 @@ export default function Nav() {
         </div>
 
         {showInfo && (
-          <div className="fixed top-[80px] right-[10px] md:right-[10%] lg:right-[25%] w-[180px] bg-white shadow-2xl rounded-xl p-[20px] flex flex-col gap-[10px] z-9999">
+          <div className={`fixed top-[80px] right-[10px] ${userData.role == "deliveryBoy" ? "md:right-[35%] lg:right-[40%]" : "md:right-[10%] lg:right-[25%]"} w-[180px] bg-white shadow-2xl rounded-xl p-[20px] flex flex-col gap-[10px] z-9999`}>
             <div className="text-[17px] font-semibold">{userData.fullName}</div>
             {userData.role == "user" && (
               <div

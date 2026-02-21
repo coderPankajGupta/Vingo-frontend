@@ -18,6 +18,7 @@ import CheckOut from "./pages/CheckOut.jsx";
 import OrderPlaced from "./pages/OrderPlaced.jsx";
 import MyOrders from "./pages/MyOrders.jsx";
 import useGetMyOrders from "./hooks/useGetMyOrders.jsx";
+import { useUpdateLocation } from "./hooks/useUpdateLocation.jsx";
 
 export const serverUrl = import.meta.env.VITE_API_URL;
 
@@ -25,11 +26,12 @@ export default function App() {
   const [isReady, setIsReady] = useState(false);
 
   useGetCurrentUser();
+  useUpdateLocation();
   useGetCity();
   useGetMyShop();
   useGetShopByCity();
   useGetItemsByCity();
-  useGetMyOrders()
+  useGetMyOrders();
 
   const { userData, currentCity } = useSelector((state) => state.user);
 

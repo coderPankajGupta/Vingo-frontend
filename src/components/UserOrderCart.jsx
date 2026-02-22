@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 export default function UserOrderCart({ data }) {
   function formateDate(dataString) {
     const date = new Date(dataString);
@@ -7,6 +9,8 @@ export default function UserOrderCart({ data }) {
       year: "numeric",
     });
   }
+
+  const navigate = useNavigate();
 
   return (
     <div className="bg-white rounded-lg shadow p-4 space-y-4">
@@ -60,7 +64,12 @@ export default function UserOrderCart({ data }) {
 
       <div className="flex justify-between items-center border-t pt-2">
         <p className="font-semibold">Total: ₹{data.totalAmount}</p>
-        <button className="bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm">Track Order</button>
+        <button
+          className="bg-[#ff4d2d] hover:bg-[#e64526] text-white px-4 py-2 rounded-lg text-sm"
+          onClick={() => navigate(`/track-order/${data._id}`)}
+        >
+          Track Order
+        </button>
       </div>
     </div>
   );

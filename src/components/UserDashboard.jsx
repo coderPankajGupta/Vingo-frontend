@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import FoodCard from "./FoodCard.jsx";
 import Nav from "./Nav.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function UserDashboard() {
   const { currentCity, shopsInMyCity, itemsInMyCity } = useSelector(
@@ -17,6 +18,21 @@ export default function UserDashboard() {
   const [showRightCateButton, setShowRightCateButton] = useState(false);
   const [showLeftShopButton, setShowLeftShopButton] = useState(false);
   const [showRightShopButton, setShowRightShopButton] = useState(false);
+  const [updatedItemsList, setUpdatedItemsList] = useState([]);
+  const navigate = useNavigate();
+
+  function handleFilterByCategory(category) {
+    if (category == "All") {
+      setUpdatedItemsList(itemsInMyCity);
+    } else {
+      const filteredList = itemsInMyCity.filter((i) => i.category === category);
+      setUpdatedItemsList(filteredList);
+    }
+  }
+
+  useEffect(() => {
+    setUpdatedItemsList(itemsInMyCity);
+  }, [itemsInMyCity]);
 
   function updateButton(ref, setLeftButton, setRightButton) {
     const element = ref.current;
@@ -103,6 +119,7 @@ export default function UserDashboard() {
                 name={cate.category}
                 image={cate.image}
                 key={index}
+                onClick={() => handleFilterByCategory(cate.category)}
               />
             ))}
           </div>
@@ -136,7 +153,12 @@ export default function UserDashboard() {
             ref={shopScrollRef}
           >
             {shopsInMyCity?.map((shop, index) => (
-              <CategoryCard name={shop.name} image={shop.image} key={index} />
+              <CategoryCard
+                name={shop.name}
+                image={shop.image}
+                key={index}
+                onClick={() => navigate(`/shop/${shop._id}`)}
+              />
             ))}
           </div>
           {showRightShopButton && (
@@ -156,7 +178,7 @@ export default function UserDashboard() {
         </h1>
 
         <div className="w-full h-auto flex flex-wrap gap-[20px] justify-center">
-          {itemsInMyCity?.map((item, index) => (
+          {updatedItemsList?.map((item, index) => (
             <FoodCard key={index} data={item} />
           ))}
         </div>

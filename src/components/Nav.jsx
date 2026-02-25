@@ -3,11 +3,11 @@ import { FaSearch } from "react-icons/fa";
 import { LuShoppingCart } from "react-icons/lu";
 import { useDispatch, useSelector } from "react-redux";
 import { IoMdSearch } from "react-icons/io";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import axios from "axios";
 import { serverUrl } from "../App";
-import { clearUserData } from "../redux/userSlice";
+import { clearUserData, setSearchItems } from "../redux/userSlice";
 import { FaPlus } from "react-icons/fa6";
 import { MdReceiptLong } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +19,7 @@ export default function Nav() {
   const { myShopData } = useSelector((state) => state.owner);
   const [showInfo, setShowInfo] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [query, setQuery] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -35,6 +36,30 @@ export default function Nav() {
     }
   }
 
+  async function handleSearchItems() {
+    try {
+      const result = await axios.get(
+        `${serverUrl}/api/item/search-items?query=${query}&city=${currentCity}`,
+        { withCredentials: true },
+      );
+      dispatch(setSearchItems(result.data));
+      console.log(result.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    if (query) {
+      const timer = setTimeout(() => {
+        handleSearchItems();
+      }, 400);
+      return () => clearTimeout(timer);
+    } else {
+      dispatch(setSearchItems(null));
+    }
+  }, [query]);
+
   return (
     <div className="w-full h-20 flex items-center justify-between md:justify-center gap-7.5 px-5 fixed top-0 z-9999 bg-[#fff9f6] overflow-visible">
       {showSearch && userData.role == "user" && (
@@ -49,6 +74,8 @@ export default function Nav() {
               type="text"
               placeholder="Search delicious food..."
               className="outline-0 w-full px-2.5 text-gray-700"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
           </div>
         </div>
@@ -67,6 +94,8 @@ export default function Nav() {
               type="text"
               placeholder="Search delicious food..."
               className="outline-0 w-full px-2.5 text-gray-700"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
             />
           </div>
         </div>
@@ -159,7 +188,9 @@ export default function Nav() {
         </div>
 
         {showInfo && (
-          <div className={`fixed top-[80px] right-[10px] ${userData.role == "deliveryBoy" ? "md:right-[35%] lg:right-[40%]" : "md:right-[10%] lg:right-[25%]"} w-[180px] bg-white shadow-2xl rounded-xl p-[20px] flex flex-col gap-[10px] z-9999`}>
+          <div
+            className={`fixed top-[80px] right-[10px] ${userData.role == "deliveryBoy" ? "md:right-[35%] lg:right-[40%]" : "md:right-[10%] lg:right-[25%]"} w-[180px] bg-white shadow-2xl rounded-xl p-[20px] flex flex-col gap-[10px] z-9999`}
+          >
             <div className="text-[17px] font-semibold">{userData.fullName}</div>
             {userData.role == "user" && (
               <div

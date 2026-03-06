@@ -14,8 +14,9 @@ import { useNavigate } from "react-router-dom";
 import { clearOwnerData } from "../redux/ownerSlice";
 
 export default function Nav() {
-  const { userData } = useSelector((state) => state.user);
-  const { currentCity, cartItems } = useSelector((state) => state.user);
+  const { userData, currentCity, cartItems } = useSelector(
+    (state) => state.user,
+  );
   const { myShopData } = useSelector((state) => state.owner);
   const [showInfo, setShowInfo] = useState(false);
   const [showSearch, setShowSearch] = useState(false);

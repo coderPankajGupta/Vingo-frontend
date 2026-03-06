@@ -8,6 +8,7 @@ import { useState } from "react";
 export default function OwnerOrderCart({ data }) {
   const dispatch = useDispatch();
   const [availableBoys, setAvailableBoys] = useState([]);
+  console.log(data)
 
   async function handleUpdateStatus(orderId, shopId, status) {
     try {
@@ -35,6 +36,15 @@ export default function OwnerOrderCart({ data }) {
           <MdPhone />
           <span>{data.user.mobile}</span>
         </p>
+        {data.paymentMethod == "online" ? (
+          <p className="flex items-center gap-2 text-sm text-gray-600">
+            payment: {data.payment ? "true" : "false"}
+          </p>
+        ) : (
+          <p className="flex items-center gap-2 text-sm text-gray-600">
+            Payment Method: {data.paymentMethod}
+          </p>
+        )}
       </div>
 
       <div className="flex items-start flex-col gap-2 text-gray-600 text-sm">
@@ -103,7 +113,10 @@ export default function OwnerOrderCart({ data }) {
               </div>
             ))
           ) : data.shopOrders.assignedDeliveryBoy ? (
-            <div>{data.shopOrders.assignedDeliveryBoy.fullName} - {data.shopOrders.assignedDeliveryBoy.mobile}</div>
+            <div>
+              {data.shopOrders.assignedDeliveryBoy.fullName} -{" "}
+              {data.shopOrders.assignedDeliveryBoy.mobile}
+            </div>
           ) : (
             <div>Waiting for delivery boys to accept</div>
           )}

@@ -5,11 +5,14 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { IoArrowBackOutline } from "react-icons/io5";
 import DeliveryBoyTracking from "../components/DeliveryBoyTracking";
+import { useSelector } from "react-redux";
 
 export default function TrackOrderPage() {
   const { orderId } = useParams();
   const [currentOrder, setCurrentOrder] = useState();
   const navigate = useNavigate();
+  const { socket } = useSelector((state) => state.user);
+  const [liveLocations, setLiveLocations] = useState({});
 
   async function handleGetOrder() {
     try {
@@ -23,6 +26,18 @@ export default function TrackOrderPage() {
       console.log(error);
     }
   }
+
+  useEffect(() => {
+    socket.on(
+      "updateDeliveryLocation",
+      ({ deliveryBoyId, latitude, longitude }) => {
+        setLiveLocations((prev) => ({
+          ...prev,
+          [deliveryBoyId]: { lat: latitude, lon: longitude },
+        }));
+      },
+    );
+  }, [socket]);
 
   useEffect(() => {
     handleGetOrder();
@@ -89,7 +104,7 @@ export default function TrackOrderPage() {
               <div className="h-[400px] w-full rounded-2xl overflow-hidden shadow-md">
                 <DeliveryBoyTracking
                   data={{
-                    deliveryBoyLocation: {
+                    deliveryBoyLocation: liveLocations[shopOrder.assignedDeliveryBoy._id] || {
                       lat: shopOrder.assignedDeliveryBoy.location
                         .coordinates[1],
                       lon: shopOrder.assignedDeliveryBoy.location

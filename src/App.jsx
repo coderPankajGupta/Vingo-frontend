@@ -3,7 +3,7 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import { useGetCurrentUser } from "./hooks/useGetCurrentUser.jsx";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Home from "./pages/Home.jsx";
 import { useGetCity } from "./hooks/useGetCity.jsx";
 import useGetMyShop from "./hooks/useGetMyShop.jsx";
@@ -21,6 +21,8 @@ import useGetMyOrders from "./hooks/useGetMyOrders.jsx";
 import { useUpdateLocation } from "./hooks/useUpdateLocation.jsx";
 import TrackOrderPage from "./pages/TrackOrderPage.jsx";
 import Shop from "./pages/Shop.jsx";
+import { io } from "socket.io-client";
+import { setSocket } from "./redux/userSlice.js";
 
 export const serverUrl = import.meta.env.VITE_API_URL;
 
@@ -36,43 +38,56 @@ export default function App() {
   useGetMyOrders();
 
   const { userData, currentCity } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  // useEffect(() => {
+  //   if (userData && !currentCity) {
+  //     setIsReady(false);
+  //   } else {
+  //     const timer = setTimeout(() => {
+  //       setIsReady(true);
+  //     }, 100);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [userData, currentCity]);
+
+  // if (!isReady) {
+  //   return (
+  //     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#fff9f6]">
+  //       <h1 className="text-6xl font-bold text-[#ff4d2d] mb-8 animate-pulse">
+  //         Vingo
+  //       </h1>
+  //       <div className="flex gap-3">
+  //         <div className="w-4 h-4 bg-[#ff4d2d] rounded-full animate-bounce"></div>
+  //         <div
+  //           className="w-4 h-4 bg-[#ff4d2d] rounded-full animate-bounce"
+  //           style={{ animationDelay: "0.2s" }}
+  //         ></div>
+  //         <div
+  //           className="w-4 h-4 bg-[#ff4d2d] rounded-full animate-bounce"
+  //           style={{ animationDelay: "0.4s" }}
+  //         ></div>
+  //       </div>
+  //       <p className="text-gray-600 mt-6">
+  //         {userData && !currentCity
+  //           ? "Detecting your location..."
+  //           : "Loading..."}
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   useEffect(() => {
-    if (userData && !currentCity) {
-      setIsReady(false);
-    } else {
-      const timer = setTimeout(() => {
-        setIsReady(true);
-      }, 100);
-      return () => clearTimeout(timer);
+    const socketInstance = io(serverUrl, { withCredentials: true });
+    dispatch(setSocket(socketInstance));
+    socketInstance.on("connect", () => {
+      if (userData) {
+        socketInstance.emit("identity", { userId: userData._id });
+      }
+    });
+    return ()=>{
+      socketInstance.disconnect()
     }
-  }, [userData, currentCity]);
-
-  if (!isReady) {
-    return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#fff9f6]">
-        <h1 className="text-6xl font-bold text-[#ff4d2d] mb-8 animate-pulse">
-          Vingo
-        </h1>
-        <div className="flex gap-3">
-          <div className="w-4 h-4 bg-[#ff4d2d] rounded-full animate-bounce"></div>
-          <div
-            className="w-4 h-4 bg-[#ff4d2d] rounded-full animate-bounce"
-            style={{ animationDelay: "0.2s" }}
-          ></div>
-          <div
-            className="w-4 h-4 bg-[#ff4d2d] rounded-full animate-bounce"
-            style={{ animationDelay: "0.4s" }}
-          ></div>
-        </div>
-        <p className="text-gray-600 mt-6">
-          {userData && !currentCity
-            ? "Detecting your location..."
-            : "Loading..."}
-        </p>
-      </div>
-    );
-  }
+  }, [userData?._id]);
 
   return (
     <Routes>

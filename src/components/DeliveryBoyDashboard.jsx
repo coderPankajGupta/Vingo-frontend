@@ -4,13 +4,63 @@ import { useSelector } from "react-redux";
 import { serverUrl } from "../App";
 import { useEffect, useState } from "react";
 import DeliveryBoyTracking from "./DeliveryBoyTracking";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { ClipLoader } from "react-spinners";
 
 export default function DeliveryBoyDashboard() {
-  const { userData } = useSelector((state) => state.user);
+  const { userData, socket } = useSelector((state) => state.user);
   const [availableAssignments, setAvailableAssignments] = useState([]);
   const [currentOrder, setCurrentOrder] = useState();
   const [showOtpBox, setShowOtpBox] = useState(false);
   const [otp, setOtp] = useState("");
+  const [deliveryBoyLocation, setDeliveryBoyLocation] = useState(null);
+  const [todayDeliveries, setTodayDeliveries] = useState([]);
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState("")
+
+  useEffect(() => {
+    if (!socket || userData.role !== "deliveryBoy") {
+      return;
+    }
+    let watchId;
+    if (navigator.geolocation) {
+      ((watchId = navigator.geolocation.watchPosition((position) => {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+        setDeliveryBoyLocation({ lat: latitude, lon: longitude });
+        socket.emit("updateLocation", {
+          latitude,
+          longitude,
+          userId: userData._id,
+        });
+      })),
+        (error) => {
+          console.log(`Geolocation error : ${error}`);
+        },
+        {
+          enableHighAccuracy: true,
+        });
+    }
+    return () => {
+      if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [socket, userData]);
+
+  const ratePerDelivery = 50;
+  const totalEarning = todayDeliveries.reduce(
+    (sum, d) => sum + d.count * ratePerDelivery,
+    0,
+  );
 
   async function getAssignments() {
     try {
@@ -50,20 +100,24 @@ export default function DeliveryBoyDashboard() {
   }
 
   async function sendOtp() {
-    setShowOtpBox(!showOtpBox);
+    setLoading(true)
     try {
       const result = await axios.post(
         `${serverUrl}/api/order/send-delivery-otp`,
         { orderId: currentOrder._id, shopOrderId: currentOrder.shopOrder._id },
         { withCredentials: true },
       );
+      setLoading(false)
+      setShowOtpBox(!showOtpBox);
       console.log(result.data);
     } catch (error) {
       console.log(error);
+      setLoading(false)
     }
   }
 
   async function verifyOtp() {
+    setMessage("")
     try {
       const result = await axios.post(
         `${serverUrl}/api/order/verify-delivery-otp`,
@@ -75,14 +129,40 @@ export default function DeliveryBoyDashboard() {
         { withCredentials: true },
       );
       console.log(result.data);
+      setMessage(result.data.message)
+      location.reload()
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function handleTodayDeliveries() {
+    try {
+      const result = await axios.get(
+        `${serverUrl}/api/order/get-today-deliveries`,
+        { withCredentials: true },
+      );
+      setTodayDeliveries(result.data);
     } catch (error) {
       console.log(error);
     }
   }
 
   useEffect(() => {
+    socket.on("newAssignment", (data) => {
+      if (data.sentTo == userData._id) {
+        setAvailableAssignments((prev) => [...prev, data]);
+      }
+    });
+    return () => {
+      socket?.off("newAssignment");
+    };
+  }, [socket]);
+
+  useEffect(() => {
     getAssignments();
     getCurrentOrder();
+    handleTodayDeliveries();
   }, [userData]);
 
   return (
@@ -95,11 +175,36 @@ export default function DeliveryBoyDashboard() {
           </h1>
           <p className="text-[#ff4d2d]">
             <span className="font-semibold">Latitude: </span>
-            {userData.location.coordinates[1]},
+            {deliveryBoyLocation?.lat},
             <span className="font-semibold"> Longitude: </span>
-            {userData.location.coordinates[0]}
+            {deliveryBoyLocation?.lon}
           </p>
         </div>
+
+        <div>
+          <h1 className="text-lg font-bold mb-3 text-[#ff4d2d]">
+            Today Deliveries
+          </h1>
+
+          <ResponsiveContainer width="100%" height="200">
+            <BarChart data={todayDeliveries}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="hour" tickFormatter={(h) => `${h}:00`} />
+              <YAxis dataKey="count" allowDecimals={false} />
+              <Tooltip
+                formatter={(value) => [value, "orders"]}
+                labelFormatter={(label) => `${label}:00`}
+              />
+              <Bar dataKey="count" fill="#ff4d2d" />
+            </BarChart>
+          </ResponsiveContainer>
+
+          <div className="max-w-sm mx-auto mt-6 p-6 bg-white rounded-2xl shadow-lg text-center">
+            <h1 className="text-xl font-semibold text-gray-800 mb-2">Today's Earning</h1>
+            <span className="text-3xl font-bold text-green-600">₹{totalEarning}</span>
+          </div>
+        </div>
+
         {!currentOrder && (
           <div className="bg-white rounded-2xl p-5 shadow-md w-[90%] border border-orange-100">
             <h1 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -152,13 +257,24 @@ export default function DeliveryBoyDashboard() {
                 {currentOrder.shopOrder.subtotal}
               </p>
             </div>
-            <DeliveryBoyTracking data={currentOrder} />
+            <DeliveryBoyTracking
+              data={{
+                deliveryBoyLocation: deliveryBoyLocation || {
+                  lat: userData.location.coordinates[1],
+                  lon: userData.location.coordinates[0],
+                },
+                customerLocation: {
+                  lat: currentOrder.deliveryAddress.latitude,
+                  lon: currentOrder.deliveryAddress.longitude,
+                },
+              }}
+            />
             {!showOtpBox ? (
               <button
                 className="mt-4 w-full bg-green-500 text-white font-semibold py-2 px-4 rounded-xl shadow-md hover:bg-green-600 active:scale-95 transition-all"
-                onClick={sendOtp}
+                onClick={sendOtp} disabled={loading}
               >
-                Mark as delivered
+                {loading?<ClipLoader size={20} color="white"/>:"Mark as delivered"}
               </button>
             ) : (
               <div className="mt-4 p-4 border rounded-xl bg-gray-50">
@@ -173,7 +289,9 @@ export default function DeliveryBoyDashboard() {
                   className="w-full border px-3 py-2 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
                   placeholder="Enter OTP"
                   onChange={(e) => setOtp(e.target.value)}
+                  value={otp}
                 />
+                {message && <p className="text-center text-green-400 text-2xl mb-4">{message}</p>}
                 <button
                   className="w-full bg-orange-500 text-white py-2 rounded-lg font-semibold hover:bg-orange-600 transition-all"
                   onClick={verifyOtp}

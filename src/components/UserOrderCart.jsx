@@ -1,4 +1,7 @@
+import axios from "axios";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { serverUrl } from "../App";
 
 export default function UserOrderCart({ data }) {
   function formateDate(dataString) {
@@ -11,6 +14,20 @@ export default function UserOrderCart({ data }) {
   }
 
   const navigate = useNavigate();
+  const [selectedRating, setSelectedRating] = useState({});
+
+  async function handleRating(itemId, rating) {
+    try {
+      const result = await axios.post(
+        `${serverUrl}/api/item/rating`,
+        { itemId, rating },
+        { withCredentials: true },
+      );
+      setSelectedRating((prev) => ({ ...prev, [itemId]: rating }));
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="bg-white rounded-lg shadow p-4 space-y-4">
@@ -22,9 +39,16 @@ export default function UserOrderCart({ data }) {
           </p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-gray-500">
-            {data?.paymentMethod?.toUpperCase()}
-          </p>
+          {data.paymentMethod == "cod" ? (
+            <p className="text-sm text-gray-500">
+              {data?.paymentMethod?.toUpperCase()}
+            </p>
+          ) : (
+            <p className="text-sm text-gray-500 font-semibold">
+              Payment: {data?.payment ? "true" : "false"}
+            </p>
+          )}
+
           <p className="font-medium text-blue-600">
             {data?.shopOrders[0]?.status}
           </p>
@@ -50,6 +74,19 @@ export default function UserOrderCart({ data }) {
                 <p className="text-gray-500 text-xs">
                   Qty: {item.quantity} X ₹{item.price}
                 </p>
+
+                {shopOrder.status == "delivered" && (
+                  <div className="flex space-x-1 mt-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        className={`text-lg ${selectedRating[item.item._id] >= star ? "text-yellow-400" : "text-gray-400"}`}
+                        onClick={() => handleRating(item.item._id, star)}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>

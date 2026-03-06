@@ -82,7 +82,7 @@ export default function CheckOut() {
             latitude: location.lat,
             longitude: location.lon,
           },
-          totalAmount,
+          totalAmount:totalAmountWithDeliveryFee,
           cartItems,
         },
         { withCredentials: true },
@@ -92,14 +92,43 @@ export default function CheckOut() {
         dispatch(addMyOrder(result.data));
         navigate("/order-placed");
       } else {
-        openRazorpayWindow();
+        const orderId = result.data.orderId;
+        const razorOrder = result.data.razorOrder;
+        openRazorpayWindow(orderId, razorOrder);
       }
     } catch (error) {
       console.log(error);
     }
   }
 
-  function openRazorpayWindow(params) {}
+  function openRazorpayWindow(orderId, razorOrder) {
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_API_ID,
+      amount: razorOrder.amount,
+      name: "Vingo",
+      description: "Food Delivery Website",
+      order_id: razorOrder.id,
+      handler: async function (response) {
+        try {
+          const result = await axios.post(
+            `${serverUrl}/api/order/verify-payment`,
+            {
+              razorpay_payment_id: response.razorpay_payment_id,
+              orderId,
+            },
+            { withCredentials: true },
+          );
+          dispatch(addMyOrder(result.data))
+          navigate("/order-placed")
+        } catch (error) {
+          console.log(error)
+        }
+      },
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  }
 
   useEffect(() => {
     setAddressInput(address);

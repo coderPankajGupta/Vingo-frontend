@@ -1,16 +1,36 @@
-# React + Vite
+🍔 Vingo — Food Delivery Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack food delivery application where users can browse restaurants, explore menus, manage their cart, and place orders — all with a seamless and responsive experience.
 
-Currently, two official plugins are available:
+Live Demo: vingo-frontend-ten.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Features :-----
+🏪 Restaurant Browsing — Explore available restaurants and their menus
+🛒 Cart Management — Add, remove, and update food items in real time
+🔐 User Authentication — Secure login and signup with JWT-based sessions
+📦 Order Placement — Place orders with live status tracking
+☁️ Image Uploads — Restaurant and food images managed via Cloudinary
+📱 Responsive Design — Fully optimized for mobile and desktop
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Tech Stack :-----
+React.js (Vite)
+Redux & Redux Toolkit — centralized state management
+React Router DOM — client-side routing
+Axios — API communication
+Tailwind CSS — styling
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Project Structure :-----
+Vingo-frontend/
+├── public/
+├── src/
+│   ├── components/       # Reusable UI components
+│   ├── pages/            # Page-level components
+│   ├── redux/            # Store, slices, actions
+│   ├── services/         # API calls (Axios)
+│   ├── utils/            # Helper functions
+│   └── App.jsx
+├── .env
+├── vite.config.js
+└── package.json
